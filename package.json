@@ -23,6 +23,7 @@
     "nodemon": "^3.0.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.24.6",
     "@babel/core": "^7.23.5",
     "@babel/preset-env": "^7.23.5",
     "babel-jest": "^29.7.0",
