@@ -1,5 +1,4 @@
 const express = require('express')
-const PORT = 5555
 const { mongoDBURL } = require('./config.js')
 const mongoose = require('mongoose')
 const recipesRoute = require('./routes/recipesRoute.js')
@@ -9,6 +8,7 @@ const categoriesRoute = require('./routes/categoriesRoute.js')
 const ingredientsRecipeRoute = require('./routes/ingredientsRecipeRoute.js')
 const usersRoute = require('./routes/usersRoute.js')
 const cors = require('cors')
+const dotenv = require('dotenv')
 
 const app = express()
 
@@ -30,6 +30,8 @@ app.get('/', (request, response) => {
   console.log(request);
   return response.status(234).send('Welcome to my first app MERN')
 })
+
+const PORT = process.env.PORT || 5555;
 
 mongoose
 .connect(mongoDBURL)
