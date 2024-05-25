@@ -1,4 +1,4 @@
-import mongoose from 'mongoose'
+const mongoose = require('mongoose');
 
 const abbreviationMap = {
   Kilograma: 'kg',
@@ -22,5 +22,5 @@ unitOfMeasureSchema.pre('save', function (next) {
   next();
 });
 
-export const UnitOfMeasure = mongoose.model('UnitOfMeasure', unitOfMeasureSchema);
+module.exports = mongoose.model('UnitOfMeasure', unitOfMeasureSchema);
 

@@ -1,7 +1,6 @@
-import { Recipe } from '../models/recipeModel.js'
-import { IngredientRecipe } from '../models/ingredientRecipeModel.js'
-import { Ingredient } from '../models/ingredientModel.js';
-import { UnitOfMeasure } from '../models/unitOfMeasureModel.js';
+const Recipe = require('../models/recipeModel');
+const IngredientRecipe = require('../models/ingredientRecipeModel');
+const Ingredient = require('../models/ingredientModel');
 
 const createRecipe = async (request, response) => {
   try {
@@ -185,5 +184,11 @@ function convertUnitOfMeasure(quantity, recipeUnit, ingredientUnit) {
   }
 }
 
-export { createRecipe, getAllRecipes, getOneRecipe, updateOneRecipe, deleteOneRecipe };
+module.exports = {
+  createRecipe,
+  getAllRecipes,
+  getOneRecipe,
+  updateOneRecipe,
+  deleteOneRecipe
+};
 

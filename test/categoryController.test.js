@@ -1,5 +1,5 @@
-import { getAllCategories, createCategory } from '../controllers/categoryController';
-import { Category } from '../models/categoryModel';
+const { getAllCategories, createCategory } = require('../controllers/categoryController');
+const { Category } = require('../models/categoryModel');
 
 jest.mock('../models/categoryModel', () => ({
   Category: {

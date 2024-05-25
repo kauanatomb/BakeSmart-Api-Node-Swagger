@@ -1,7 +1,7 @@
-// import { getAllIngredients, createIngredient, updateIngredient } from '../controllers/ingredientController';
-// import { Ingredient } from '../models/ingredientModel';
-// import { Category } from '../models/categoryModel';
-// import { UnitOfMeasure } from '../models/unitOfMeasureModel';
+// const { getAllIngredients, createIngredient } = require('../controllers/ingredientController');
+// const { Ingredient } = require('../models/ingredientModel');
+// const { Category } = require('../models/categoryModel');
+// const { UnitOfMeasure } = require('../models/unitOfMeasureModel');
 
 // jest.mock('../models/ingredientModel', () => ({
 //   Ingredient: {

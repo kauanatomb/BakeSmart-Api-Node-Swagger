@@ -1,7 +1,7 @@
-import { Recipe } from '../models/recipeModel.js';
-import { IngredientRecipe } from '../models/ingredientRecipeModel.js';
-import { UnitOfMeasure } from '../models/unitOfMeasureModel.js';
-import { Ingredient } from '../models/ingredientModel.js';
+const IngredientRecipe = require('../models/ingredientRecipeModel');
+const Ingredient = require('../models/ingredientModel');
+const UnitOfMeasure = require('../models/unitOfMeasureModel');
+const Recipe = require('../models/recipeModel');
 
 const getAllIngredientsRecipe = async (req, res) => {
   const { recipeId } = req.params;
@@ -143,9 +143,9 @@ function convertUnitOfMeasure(quantity, recipeUnit, ingredientUnit) {
 }
 
 
-export {
-  addIngredientsToRecipe,
+module.exports = {
   getAllIngredientsRecipe,
+  addIngredientsToRecipe,
   updateIngredientsForRecipe,
   deleteOneIngredientRecipe
 };

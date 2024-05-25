@@ -1,5 +1,5 @@
-import { getAllUnitOfMeasures, createUnitOfMeasure } from '../controllers/unitOfMeasureController';
-import { UnitOfMeasure } from '../models/unitOfMeasureModel';
+const { getAllUnitOfMeasures, createUnitOfMeasure } = require('../controllers/unitOfMeasureController');
+const { UnitOfMeasure } = require('../models/unitOfMeasureModel');
 
 jest.mock('../models/unitOfMeasureModel', () => ({
   UnitOfMeasure: {

@@ -1,4 +1,4 @@
-import { UnitOfMeasure } from '../models/unitOfMeasureModel.js'
+const UnitOfMeasure = require('../models/unitOfMeasureModel');
 
 const getAllUnitOfMeasures = async (req, res) => {
   try {
@@ -23,4 +23,7 @@ const createUnitOfMeasure = async (req, res) => {
   }
 } 
 
-export { createUnitOfMeasure, getAllUnitOfMeasures}
+module.exports = {
+  getAllUnitOfMeasures,
+  createUnitOfMeasure
+}

@@ -1,13 +1,14 @@
-import express from "express" 
-import { PORT, mongoDBURL } from "./config.js"
-import mongoose from 'mongoose'
-import recipesRoute from './routes/recipesRoute.js'
-import ingredientsRoute from './routes/ingredientsRoute.js'
-import unitOfMeasuresRoute from './routes/unitOfMeasuresRoute.js'
-import categoriesRoute from './routes/categoriesRoute.js'
-import ingredientsRecipeRoute from './routes/ingredientsRecipeRoute.js'
-import usersRoute from './routes/usersRoute.js'
-import cors from 'cors'
+const express = require('express')
+const PORT = 5555
+const { mongoDBURL } = require('./config.js')
+const mongoose = require('mongoose')
+const recipesRoute = require('./routes/recipesRoute.js')
+const ingredientsRoute = require('./routes/ingredientsRoute.js')
+const unitOfMeasuresRoute = require('./routes/unitOfMeasuresRoute.js')
+const categoriesRoute = require('./routes/categoriesRoute.js')
+const ingredientsRecipeRoute = require('./routes/ingredientsRecipeRoute.js')
+const usersRoute = require('./routes/usersRoute.js')
+const cors = require('cors')
 
 const app = express()
 

@@ -2,13 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest --coverage",
-    "build": "babel . -d dist"
+    "build": "cp -R ./ dist/"
   },
   "keywords": [],
   "author": "",
@@ -23,10 +22,6 @@
     "nodemon": "^3.0.1"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.6",
-    "@babel/core": "^7.23.5",
-    "@babel/preset-env": "^7.23.5",
-    "babel-jest": "^29.7.0",
     "jest": "^29.7.0"
   }
 }

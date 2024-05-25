@@ -1,7 +1,7 @@
-import { Ingredient } from '../models/ingredientModel.js';
-import { Category } from '../models/categoryModel.js'
-import { UnitOfMeasure } from '../models/unitOfMeasureModel.js'
-import { IngredientRecipe } from '../models/ingredientRecipeModel.js';
+const Ingredient = require('../models/ingredientModel');
+const Category = require('../models/categoryModel');
+const UnitOfMeasure = require('../models/unitOfMeasureModel');
+const IngredientRecipe = require('../models/ingredientRecipeModel');
 
 const getAllIngredients = async (req, res) => {
   try {
@@ -143,11 +143,4 @@ const getOneIngredient = async (req, res) => {
   }
 };
 
-
-export {
-  getAllIngredients,
-  createIngredient,
-  updateIngredient,
-  deleteOneIngredient,
-  getOneIngredient
-};
+module.exports = { getAllIngredients, createIngredient, updateIngredient, deleteOneIngredient, getOneIngredient };

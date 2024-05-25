@@ -1,6 +1,6 @@
-import express from 'express' 
-import { getAllIngredients, createIngredient, updateIngredient, deleteOneIngredient, getOneIngredient } from "../controllers/ingredientController.js";
-import auth from '../middleware/auth.js'
+const express = require('express');
+const { getAllIngredients, createIngredient, updateIngredient, deleteOneIngredient, getOneIngredient } = require('../controllers/ingredientController.js');
+const auth = require('../middleware/auth.js');
 
 const router = express.Router()
 
@@ -14,4 +14,4 @@ router.delete('/:id', auth, deleteOneIngredient);
 
 router.get('/:id', auth, getOneIngredient);
 
-export default router
+module.exports = router

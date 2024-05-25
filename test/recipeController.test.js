@@ -1,12 +1,6 @@
-import {
-  createRecipe,
-  getAllRecipes,
-  getOneRecipe,
-  updateOneRecipe,
-  deleteOneRecipe,
-} from '../controllers/recipeController';
-import { Recipe } from '../models/recipeModel';
-import { IngredientRecipe } from '../models/ingredientRecipeModel';
+const { createRecipe, getAllRecipes } = require('../controllers/recipeController');
+const Recipe = require('../models/recipeModel');
+const IngredientRecipe = require('../models/ingredientRecipeModel');
 
 jest.mock('../models/recipeModel');
 jest.mock('../models/ingredientRecipeModel');

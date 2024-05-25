@@ -1,5 +1,5 @@
-import express from 'express' 
-import { addIngredientsToRecipe, deleteOneIngredientRecipe, getAllIngredientsRecipe, updateIngredientsForRecipe } from '../controllers/ingredientRecipeController.js'
+const express = require('express')
+const { addIngredientsToRecipe, getAllIngredientsRecipe, updateIngredientsForRecipe, deleteOneIngredientRecipe } = require('../controllers/ingredientRecipeController.js')
 
 const router = express.Router()
 
@@ -8,4 +8,4 @@ router.get('/recipes/:recipeId/ingredients', getAllIngredientsRecipe);
 router.put('/recipes/:recipeId/ingredients', updateIngredientsForRecipe);
 router.delete('/recipes/:recipeId/ingredients/:id', deleteOneIngredientRecipe)
 
-export default router
+module.exports = router
