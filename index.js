@@ -1,5 +1,5 @@
 const express = require('express')
-const { mongoDBURL } = require('./config.js')
+const { mongoDBURL } = require('./config/config.js')
 const mongoose = require('mongoose')
 const recipesRoute = require('./routes/recipesRoute.js')
 const ingredientsRoute = require('./routes/ingredientsRoute.js')
@@ -8,7 +8,8 @@ const categoriesRoute = require('./routes/categoriesRoute.js')
 const ingredientsRecipeRoute = require('./routes/ingredientsRecipeRoute.js')
 const usersRoute = require('./routes/usersRoute.js')
 const cors = require('cors')
-const dotenv = require('dotenv')
+const swaggerUI = require('swagger-ui-express')
+const swaggerDocument = require('./swagger_documentation.json')
 
 const app = express()
 
@@ -19,17 +20,14 @@ app.use(express.json())
 // Option 1: Allow all origins with Default of cors(*)
 app.use(cors())
 
-app.use('/recipes', recipesRoute)
-app.use('/ingredients', ingredientsRoute)
-app.use('/unitofmeasures', unitOfMeasuresRoute)
-app.use('/categories', categoriesRoute)
+app.use('/', recipesRoute)
+app.use('/', ingredientsRoute)
+app.use('/', unitOfMeasuresRoute)
+app.use('/', categoriesRoute)
 app.use('/', ingredientsRecipeRoute)
-app.use('/user', usersRoute)
-
-app.get('/', (request, response) => {
-  console.log(request);
-  return response.status(234).send('Welcome to my first app MERN')
-})
+app.use('/', usersRoute)
+// swagger documentation
+app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 5555;
 

@@ -3,8 +3,8 @@ const { getAllUnitOfMeasures, createUnitOfMeasure } = require('../controllers/un
 
 const router = express.Router()
 
-router.get('/', getAllUnitOfMeasures);
+router.get('/unitofmeasures', getAllUnitOfMeasures);
 
-router.post('/', createUnitOfMeasure);
+router.post('/unitofmeasures', createUnitOfMeasure);
 
 module.exports = router

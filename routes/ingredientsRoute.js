@@ -4,14 +4,14 @@ const auth = require('../middleware/auth.js');
 
 const router = express.Router()
 
-router.get('/', auth, getAllIngredients);
+router.get('/ingredients', auth, getAllIngredients);
 
-router.post('/', auth, createIngredient);
+router.post('/ingredients', auth, createIngredient);
 
-router.put('/:id', auth, updateIngredient);
+router.put('/ingredients/:id', auth, updateIngredient);
 
-router.delete('/:id', auth, deleteOneIngredient);
+router.delete('/ingredients/:id', auth, deleteOneIngredient);
 
-router.get('/:id', auth, getOneIngredient);
+router.get('/ingredients/:id', auth, getOneIngredient);
 
 module.exports = router
