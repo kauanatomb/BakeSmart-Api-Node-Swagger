@@ -3,7 +3,7 @@
   "info": {
     "version": "1.0.0",
     "title": "BakeSmart API",
-    "description": "Documentação da API da BakeSmart"
+    "description": "Documentation of BakeSmart API"
   },
   "host": "localhost:3000",
   "basePath": "/",
@@ -39,16 +39,18 @@
         }
       },
       "post": {
-        "description": "",
+        "description": "Create a new category",
         "parameters": [
           {
-            "name": "body",
+            "name": "Category name",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
                 "name": {
-                  "example": "any"
+                  "example": "Fruits",
+                  "required": true,
+                  "type": "string"
                 }
               }
             }
@@ -66,7 +68,7 @@
     },
     "/recipes/{recipeId}/ingredients": {
       "post": {
-        "description": "",
+        "description": "Create ingredient in a recipe",
         "parameters": [
           {
             "name": "recipeId",
@@ -140,7 +142,7 @@
     },
     "/ingredients": {
       "get": {
-        "description": "",
+        "description": "See a list of all ingredients",
         "responses": {
           "default": {
             "description": ""
@@ -148,7 +150,53 @@
         }
       },
       "post": {
-        "description": "",
+        "description": "Create a new ingredient",
+        "parameters": [
+          {
+            "name": "Ingredient name",
+            "quantity": "Ingredient quantity",
+            "unitOfMeasure": "Ingredient unit of measure",
+            "category": "Ingredient category",
+            "brand": "Ingredient brand",
+            "price": "Ingredient price",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "Apple",
+                  "required": true,
+                  "type": "string"
+                },
+                "quantity": {
+                  "example": "1",
+                  "required": true,
+                  "type": "number"
+                },
+                "unitOfMeasure": {
+                  "example": "kg",
+                  "required": true,
+                  "type": "string"
+                },
+                "category": {
+                  "example": "Fruits",
+                  "required": true,
+                  "type": "string"
+                },
+                "brand": {
+                  "example": "Nestlé",
+                  "required": true,
+                  "type": "string"
+                },
+                "price": {
+                  "example": "10.00",
+                  "required": true,
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""
@@ -164,7 +212,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "number"
           }
         ],
         "responses": {
@@ -190,10 +238,10 @@
         }
       },
       "get": {
-        "description": "",
+        "description": "See one ingredient. To it create an ingredient and keep their id.",
         "parameters": [
           {
-            "name": "id",
+            "id": "id",
             "in": "path",
             "required": true,
             "type": "string"
@@ -209,6 +257,34 @@
     "/recipes": {
       "post": {
         "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "description": "Create a new recipe",
+            "cookTime": "Recipe cook time",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "example": "Cake",
+                  "required": true,
+                  "type": "string"
+                },
+                "description": {
+                  "example": "Delicious recipe",
+                  "required": true,
+                  "type": "string"
+                },
+                "cookTime": {
+                  "example": "1 hour",
+                  "required": true,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
           "default": {
             "description": ""

@@ -19,16 +19,12 @@ const ingredientSchema = new mongoose.Schema({
   },
   unitOfMeasure: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UnitOfMeasure'
+    ref: 'UnitOfMeasure',
+    required: true
   },
   price: {
     type: Number,
     required: true
-  },
-  owner: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    required: true, 
-    ref: "User" 
   }
 });
 

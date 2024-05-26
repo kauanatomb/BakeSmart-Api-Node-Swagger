@@ -18,7 +18,11 @@ app.use(express.json())
 
 // Middleware for handling CORS Policy
 // Option 1: Allow all origins with Default of cors(*)
-app.use(cors())
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 app.use('/', recipesRoute)
 app.use('/', ingredientsRoute)

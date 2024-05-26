@@ -14,11 +14,6 @@ const recipeSchema = mongoose.Schema(
       type: String,
       default: 0,
     },
-    owner: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      required: true, 
-      ref: "User" 
-    },
   }, 
   {
     timestamps: true,

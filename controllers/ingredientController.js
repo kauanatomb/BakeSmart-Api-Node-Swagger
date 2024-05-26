@@ -5,8 +5,7 @@ const IngredientRecipe = require('../models/ingredientRecipeModel');
 
 const getAllIngredients = async (req, res) => {
   try {
-    const userId = req.user.id
-    const ingredients = await Ingredient.find({ owner: userId })
+    const ingredients = await Ingredient.find({})
       .populate('category', 'name')
       .populate('unitOfMeasure', 'unit abbreviation');
 
@@ -21,11 +20,10 @@ const getAllIngredients = async (req, res) => {
 
 const createIngredient = async (req, res) => {
   const { name, quantity, brand, category, unitOfMeasure, price } = req.body;
-  const userId = req.user.id
 
   try {
     let findCategory = await Category.findOne({ name: category });
-    let findUnitOfMeasure = await UnitOfMeasure.findOne({ unit: unitOfMeasure });
+    let findUnitOfMeasure = await UnitOfMeasure.findOne({ abbreviation: unitOfMeasure });
 
     if (!findCategory) {
       return res.status(404).json({ message: `Category '${category}' not found.` });
@@ -41,8 +39,7 @@ const createIngredient = async (req, res) => {
       brand,
       category: findCategory._id,
       unitOfMeasure: findUnitOfMeasure._id,
-      price,
-      owner: userId
+      price
     });
 
     res.status(201).json(newIngredient);
@@ -54,7 +51,6 @@ const createIngredient = async (req, res) => {
 const updateIngredient = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id
     const { name, quantity, brand, category, unitOfMeasure, price } = req.body;
 
     if (!category || !unitOfMeasure) {
@@ -62,7 +58,6 @@ const updateIngredient = async (req, res) => {
     }
 
     const findUnitOfMeasure = await UnitOfMeasure.findOne({ unit: unitOfMeasure })
-
     if (!findUnitOfMeasure) {
       return res.status(404).json({ message: 'Ingredient not found' });
     }
@@ -80,8 +75,7 @@ const updateIngredient = async (req, res) => {
         brand,
         category: findCategory._id,
         unitOfMeasure: findUnitOfMeasure._id,
-        price,
-        owner: userId
+        price
       },
       { new: true }
     );
@@ -99,11 +93,10 @@ const updateIngredient = async (req, res) => {
 const deleteOneIngredient = async (req, resp) => {
   try {
     const { id } = req.params;
-    const userId = req.user.id
 
-    IngredientRecipe.deleteMany({ ingredient: id, owner: userId })
+    IngredientRecipe.deleteMany({ ingredient: id })
     .then((result) => {
-      console.log(`${result.deletedCount} documents removed with sucess!`);
+      console.log(`${result.deletedCount} documents removed with success!`);
     })
     .catch((error) => {
       console.error('Error to remove document:', error);
@@ -124,11 +117,9 @@ const deleteOneIngredient = async (req, resp) => {
 
 
 const getOneIngredient = async (req, res) => {
-
   const { id } = req.params
-  const userId = req.user.id
   try {
-    const ingredient = await Ingredient.findOne({ _id: id, owner: userId })
+    const ingredient = await Ingredient.findOne({ _id: id })
       .populate('category')
       .populate('unitOfMeasure');
 

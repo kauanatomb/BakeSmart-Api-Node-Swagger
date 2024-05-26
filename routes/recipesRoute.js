@@ -5,14 +5,14 @@ const auth = require('../middleware/auth.js')
 
 const router = express.Router()
 
-router.post('/recipes', auth, createRecipe);
+router.post('/recipes', createRecipe);
 
-router.get('/recipes', auth, getAllRecipes);
+router.get('/recipes', getAllRecipes);
 
-router.get(`/recipes/:id`, auth, getOneRecipe)
+router.get(`/recipes/:id`, getOneRecipe)
 
-router.put('/recipes/:id', auth, updateOneRecipe)
+router.put('/recipes/:id', updateOneRecipe)
 
-router.delete('/recipes/:id', auth, deleteOneRecipe)
+router.delete('/recipes/:id', deleteOneRecipe)
 
 module.exports = router

@@ -1,15 +1,17 @@
 const mongoose = require('mongoose');
 
 const abbreviationMap = {
-  Kilograma: 'kg',
-  Gramas: 'g',
-  Unidade: 'unid'
+  Kilogram: 'kg',
+  Grams: 'g',
+  Unit: 'unid',
+  Liter: 'l',
+  Milliliter: 'ml',
 };
 
 const unitOfMeasureSchema = new mongoose.Schema({
   unit: {
     type: String,
-    enum: ['Kilograma', 'Gramas', 'Unidade'],
+    enum: ['Kilogram', 'Grams', 'Unit', 'Liter', 'Milliliter'],
     required: true
   },
   abbreviation: {

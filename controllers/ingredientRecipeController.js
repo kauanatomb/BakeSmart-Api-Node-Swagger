@@ -52,10 +52,8 @@ const addIngredientsToRecipe = async (req, res) => {
         quantity: quantity,
         unitOfMeasure: unitOfMeasure._id,
       });
-
       return await ingredientRecipe.save();
     }));
-
     res.status(201).json(createdIngredients);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -66,7 +64,6 @@ const updateIngredientsForRecipe = async (request, response) => {
   try {
     const { id } = request.params;
     const { ingredients } = request.body;
-
     const updatedIngredients = await Promise.all(ingredients.map(async (ingredientData) => {
       const { ingredientName, quantity, unitOfMeasureUnit } = ingredientData;
 
@@ -128,7 +125,6 @@ async function calculateCost(ingredientsRecipe) {
       totalCost += cost;
     }
   }
-  
   return totalCost;
 }
 
@@ -141,7 +137,6 @@ function convertUnitOfMeasure(quantity, recipeUnit, ingredientUnit) {
     throw new Error(`Incompatible units for conversion ${quantity} ${recipeUnit} ${ingredientUnit} `);
   }
 }
-
 
 module.exports = {
   getAllIngredientsRecipe,

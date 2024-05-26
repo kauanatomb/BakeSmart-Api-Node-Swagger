@@ -5,13 +5,11 @@ const Ingredient = require('../models/ingredientModel');
 const createRecipe = async (request, response) => {
   try {
     const { name, description, cookTime } = request.body;
-    const userId = request.user.id
 
     const newRecipe = { 
       name, 
       description, 
-      cookTime,
-      owner: userId 
+      cookTime
     };
 
     const recipe = await Recipe.create(newRecipe);
@@ -25,9 +23,7 @@ const createRecipe = async (request, response) => {
 
 const getAllRecipes = async (request, response) => {
   try {
-
-    const userId = request.user.id
-    const recipes = await Recipe.find({ owner: userId }).lean();
+    const recipes = await Recipe.find({}).lean();
     const recipesWithIngredients = [];
 
     for (const recipe of recipes) {
@@ -51,8 +47,7 @@ const getAllRecipes = async (request, response) => {
         name: recipe.name,
         description: recipe.description,
         cookTime: recipe.cookTime,
-        owner: recipe.owner,
-        ingredients,
+        ingredients
       };
 
       recipesWithIngredients.push(recipeWithIngredients);
@@ -94,7 +89,6 @@ const getOneRecipe = async (request,response) => {
         name: recipe.name,
         description: recipe.description,
         cookTime: recipe.cookTime,
-        owner: recipe.owner,
         ingredients,
         costRecipe
       };
@@ -113,9 +107,8 @@ const getOneRecipe = async (request,response) => {
 const updateOneRecipe = async (request, response) => {
   try {
     const { id } = request.params;
-    const userId = request.user.id
 
-    const updatedRecipe = await Recipe.findOneAndUpdate({ _id: id, owner: userId }, request.body, { new: true });
+    const updatedRecipe = await Recipe.findOneAndUpdate({ _id: id }, request.body, { new: true });
 
     if (!updatedRecipe) {
       return response.status(404).json({ message: 'Recipe not found' });
@@ -131,9 +124,8 @@ const updateOneRecipe = async (request, response) => {
 const deleteOneRecipe = async (request, response) => {
   try {
     const { id } = request.params
-    const userId = request.user.id
 
-    IngredientRecipe.deleteMany({ recipe: id, owner: userId })
+    IngredientRecipe.deleteMany({ recipe: id })
     .then((result) => {
       console.log(`${result.deletedCount} documents removed with sucess!`);
     })
