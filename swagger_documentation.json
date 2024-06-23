@@ -5,7 +5,7 @@
     "title": "BakeSmart API",
     "description": "Documentation of BakeSmart API"
   },
-  "host": "localhost:3000",
+  "host": "nodeapi-production-ebd3.up.railway.app",
   "basePath": "/",
   "schemes": [
     "http",
@@ -19,6 +19,111 @@
       "name": "Authorization"
     }
   },
+  "definitions": {
+    "Recipe": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "cookTime": {
+          "type": "string"
+        }
+      }
+    },
+    "Ingredient": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "number"
+        },
+        "unitOfMeasure": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "brand": {
+          "type": "string"
+        },
+        "price": {
+          "type": "number"
+        }
+      }
+    },
+    "Category": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "UnitOfMeasure": {
+      "type": "object",
+      "properties": {
+        "unit": {
+          "type": "string"
+        },
+        "abbreviation": {
+          "type": "string"
+        }
+      }
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Login": {
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Signup": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    },
+    "Logout": {
+      "type": "object",
+      "properties": {
+        "Authorization": {
+          "type": "string"
+        }
+      }
+    }
+  },
   "consumes": [
     "application/json"
   ],
@@ -28,7 +133,7 @@
   "paths": {
     "/categories": {
       "get": {
-        "description": "",
+        "description": "Get all categories",
         "responses": {
           "200": {
             "description": "OK"
@@ -58,7 +163,10 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Category"
+            }
           },
           "400": {
             "description": "Bad Request"
@@ -74,68 +182,116 @@
             "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            },
+            "description": "Ingredient object that needs to be added"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
           }
         }
       },
       "get": {
-        "description": "",
+        "description": "Get all ingredients in a recipe",
         "parameters": [
           {
             "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "description": "",
+        "description": "Edit ingredients in a recipe",
         "parameters": [
           {
             "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "The ID of the ingredient"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            },
+            "description": "Ingredient object that needs to be edited"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/recipes/{recipeId}/ingredients/{id}": {
       "delete": {
-        "description": "",
+        "description": "Delete ingredient in a recipe",
         "parameters": [
           {
             "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe"
           },
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the ingredient"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -144,8 +300,11 @@
       "get": {
         "description": "See a list of all ingredients",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
@@ -161,95 +320,105 @@
             "price": "Ingredient price",
             "in": "body",
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "Apple",
-                  "required": true,
-                  "type": "string"
-                },
-                "quantity": {
-                  "example": "1",
-                  "required": true,
-                  "type": "number"
-                },
-                "unitOfMeasure": {
-                  "example": "kg",
-                  "required": true,
-                  "type": "string"
-                },
-                "category": {
-                  "example": "Fruits",
-                  "required": true,
-                  "type": "string"
-                },
-                "brand": {
-                  "example": "Nestlé",
-                  "required": true,
-                  "type": "string"
-                },
-                "price": {
-                  "example": "10.00",
-                  "required": true,
-                  "type": "number"
-                }
-              }
+              "$ref": "#/definitions/Ingredient"
             }
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "201": {
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/ingredients/{id}": {
       "put": {
-        "description": "",
+        "description": "Edit an ingredient",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "number"
+            "type": "number",
+            "description": "The ID of the ingredient to edit"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            },
+            "description": "Ingredient object that needs to be edited"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "delete": {
-        "description": "",
+        "description": "Delete an ingredient",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the ingredient to delete"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200":{
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "get": {
-        "description": "See one ingredient. To it create an ingredient and keep their id.",
+        "description": "Get one ingredient. To it create an ingredient and keep their id.",
         "parameters": [
           {
             "id": "id",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the ingredient to retrieve"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Ingredient"
+            },
+            "description": "Ingredient object that needs to be edited"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -260,28 +429,9 @@
         "parameters": [
           {
             "name": "body",
-            "description": "Create a new recipe",
-            "cookTime": "Recipe cook time",
             "in": "body",
             "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "Cake",
-                  "required": true,
-                  "type": "string"
-                },
-                "description": {
-                  "example": "Delicious recipe",
-                  "required": true,
-                  "type": "string"
-                },
-                "cookTime": {
-                  "example": "1 hour",
-                  "required": true,
-                  "type": "string"
-                }
-              }
+              "$ref": "#/definitions/Recipe"
             }
           }
         ],
@@ -292,78 +442,150 @@
         }
       },
       "get": {
-        "description": "",
+        "description": "Get all recipes",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
     "/recipes/{id}": {
       "get": {
-        "description": "",
+        "description": "Get one recipe",
         "parameters": [
           {
-            "name": "id",
-            "in": "path",
+            "name": "RecipeId",
+            "in": "body",
             "required": true,
             "type": "string"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "put": {
-        "description": "",
+        "description": "Edit a recipe",
         "parameters": [
           {
-            "name": "id",
+            "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe to edit"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Recipe"
+            },
+            "description": "Recipe object that needs to be edited"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Recipe updated successfully",
+            "schema": {
+              "$ref": "#/definitions/Recipe"
+            }
+          },
+          "400": {
+            "description": "Invalid ID supplied or validation error for the input fields"
+          },
+          "404": {
+            "description": "Recipe not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       },
       "delete": {
-        "description": "",
+        "description": "Delete a recipe",
         "parameters": [
           {
-            "name": "id",
+            "name": "recipeId",
             "in": "path",
             "required": true,
-            "type": "string"
+            "type": "string",
+            "description": "The ID of the recipe to delete"
           }
         ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "Recipe successfully deleted"
+          },
+          "400": {
+            "description": "Invalid request - recipeId is missing or invalid"
+          },
+          "404": {
+            "description": "Recipe not found"
+          },
+          "500": {
+            "description": "Internal server error"
           }
         }
       }
     },
     "/unitofmeasures": {
       "get": {
-        "description": "",
+        "description": "Get all Unit Of Measures",
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       },
       "post": {
-        "description": "",
+        "description": "Create a new Unit Of Measure",
+        "parameters": [
+          {
+            "unit": "Unit of Measure name",
+            "abbreviation": "Unit of Measure abbreviation",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "unit": {
+                  "example": "Kilogram",
+                  "required": true,
+                  "type": "string"
+                },
+                "abbreviation": {
+                  "example": "kg",
+                  "required": true,
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
         "responses": {
-          "default": {
-            "description": ""
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UnitOfMeasure"
+            }
+          },
+          "400": {
+            "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -379,13 +601,13 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "example": "any"
+                  "example": "Name and lastname"
                 },
                 "email": {
-                  "example": "any"
+                  "example": "example@example.com"
                 },
                 "password": {
-                  "example": "any"
+                  "example": "password"
                 }
               }
             }
@@ -393,10 +615,16 @@
         ],
         "responses": {
           "201": {
-            "description": "Created"
+            "description": "Created",
+            "schema": {
+              "$ref": "#/definitions/Signup"
+            }
           },
           "400": {
             "description": "Bad Request"
+          },
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
@@ -412,10 +640,10 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "example@example.com"
                 },
                 "password": {
-                  "example": "any"
+                  "example": "password"
                 }
               }
             }
@@ -423,7 +651,10 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Login"
+            }
           },
           "401": {
             "description": "Unauthorized"
@@ -449,7 +680,10 @@
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Logout"
+            }
           },
           "401": {
             "description": "Unauthorized"
