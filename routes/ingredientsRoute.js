@@ -1,6 +1,5 @@
 const express = require('express');
 const { getAllIngredients, createIngredient, updateIngredient, deleteOneIngredient, getOneIngredient } = require('../controllers/ingredientController.js');
-const auth = require('../middleware/auth.js');
 
 const router = express.Router()
 

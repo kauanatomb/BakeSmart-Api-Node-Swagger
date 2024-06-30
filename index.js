@@ -6,7 +6,6 @@ const ingredientsRoute = require('./routes/ingredientsRoute.js')
 const unitOfMeasuresRoute = require('./routes/unitOfMeasuresRoute.js')
 const categoriesRoute = require('./routes/categoriesRoute.js')
 const ingredientsRecipeRoute = require('./routes/ingredientsRecipeRoute.js')
-const usersRoute = require('./routes/usersRoute.js')
 const cors = require('cors')
 const swaggerUI = require('swagger-ui-express')
 const swaggerDocument = require('./swagger_documentation.json')
@@ -29,7 +28,6 @@ app.use('/', ingredientsRoute)
 app.use('/', unitOfMeasuresRoute)
 app.use('/', categoriesRoute)
 app.use('/', ingredientsRecipeRoute)
-app.use('/', usersRoute)
 // swagger documentation
 app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 

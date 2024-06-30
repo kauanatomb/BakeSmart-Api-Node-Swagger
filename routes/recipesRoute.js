@@ -1,7 +1,5 @@
 const express = require('express')
 const { createRecipe, getAllRecipes, getOneRecipe, updateOneRecipe, deleteOneRecipe } = require('../controllers/recipeController.js')
-const auth = require('../middleware/auth.js')
-
 
 const router = express.Router()
 

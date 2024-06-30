@@ -75,53 +75,6 @@
           "type": "string"
         }
       }
-    },
-    "User": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "Login": {
-      "type": "object",
-      "properties": {
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "Signup": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "email": {
-          "type": "string"
-        },
-        "password": {
-          "type": "string"
-        }
-      }
-    },
-    "Logout": {
-      "type": "object",
-      "properties": {
-        "Authorization": {
-          "type": "string"
-        }
-      }
     }
   },
   "consumes": [
@@ -133,6 +86,7 @@
   "paths": {
     "/categories": {
       "get": {
+        "tags": ["Category"],
         "description": "Get all categories",
         "responses": {
           "200": {
@@ -144,6 +98,7 @@
         }
       },
       "post": {
+        "tags": ["Category"],
         "description": "Create a new category",
         "parameters": [
           {
@@ -176,6 +131,7 @@
     },
     "/recipes/{recipeId}/ingredients": {
       "post": {
+        "tags": ["Ingredient Recipe"],
         "description": "Create ingredient in a recipe",
         "parameters": [
           {
@@ -208,6 +164,7 @@
         }
       },
       "get": {
+        "tags": ["Ingredient Recipe"],
         "description": "Get all ingredients in a recipe",
         "parameters": [
           {
@@ -228,6 +185,7 @@
         }
       },
       "put": {
+        "tags": ["Ingredient Recipe"],
         "description": "Edit ingredients in a recipe",
         "parameters": [
           {
@@ -269,6 +227,7 @@
     },
     "/recipes/{recipeId}/ingredients/{id}": {
       "delete": {
+        "tags": ["Ingredient Recipe"],
         "description": "Delete ingredient in a recipe",
         "parameters": [
           {
@@ -298,6 +257,7 @@
     },
     "/ingredients": {
       "get": {
+        "tags": ["Ingredient"],
         "description": "See a list of all ingredients",
         "responses": {
           "200": {
@@ -309,6 +269,7 @@
         }
       },
       "post": {
+        "tags": ["Ingredient"],
         "description": "Create a new ingredient",
         "parameters": [
           {
@@ -342,6 +303,7 @@
     },
     "/ingredients/{id}": {
       "put": {
+        "tags": ["Ingredient"],
         "description": "Edit an ingredient",
         "parameters": [
           {
@@ -374,6 +336,7 @@
         }
       },
       "delete": {
+        "tags": ["Ingredient"],
         "description": "Delete an ingredient",
         "parameters": [
           {
@@ -394,6 +357,7 @@
         }
       },
       "get": {
+        "tags": ["Ingredient"],
         "description": "Get one ingredient. To it create an ingredient and keep their id.",
         "parameters": [
           {
@@ -425,6 +389,7 @@
     },
     "/recipes": {
       "post": {
+        "tags": ["Recipe"],
         "description": "",
         "parameters": [
           {
@@ -442,6 +407,7 @@
         }
       },
       "get": {
+        "tags": ["Recipe"],
         "description": "Get all recipes",
         "responses": {
           "200": {
@@ -455,6 +421,7 @@
     },
     "/recipes/{id}": {
       "get": {
+        "tags": ["Recipe"],
         "description": "Get one recipe",
         "parameters": [
           {
@@ -474,6 +441,7 @@
         }
       },
       "put": {
+        "tags": ["Recipe"],
         "description": "Edit a recipe",
         "parameters": [
           {
@@ -512,6 +480,7 @@
         }
       },
       "delete": {
+        "tags": ["Recipe"],
         "description": "Delete a recipe",
         "parameters": [
           {
@@ -540,6 +509,7 @@
     },
     "/unitofmeasures": {
       "get": {
+        "tags": ["Unit Of Measure"],
         "description": "Get all Unit Of Measures",
         "responses": {
           "200": {
@@ -551,6 +521,7 @@
         }
       },
       "post": {
+        "tags": ["Unit Of Measure"],
         "description": "Create a new Unit Of Measure",
         "parameters": [
           {
@@ -583,110 +554,6 @@
           },
           "400": {
             "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/signup": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "name": {
-                  "example": "Name and lastname"
-                },
-                "email": {
-                  "example": "example@example.com"
-                },
-                "password": {
-                  "example": "password"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "201": {
-            "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Signup"
-            }
-          },
-          "400": {
-            "description": "Bad Request"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/login": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "email": {
-                  "example": "example@example.com"
-                },
-                "password": {
-                  "example": "password"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Login"
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/users/logout": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "Authorization",
-            "in": "header",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Logout"
-            }
-          },
-          "401": {
-            "description": "Unauthorized"
           },
           "500": {
             "description": "Internal Server Error"
