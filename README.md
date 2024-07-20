@@ -11,7 +11,7 @@ BakeSmart API is a Node.js application designed to help small culinary entrepren
 ## API Documentation
 The API is documented using Swagger. To view the documentation:
 
-Open your browser and navigate to: https://nodeapi-production-ebd3.up.railway.app/docs/
+Open your browser and navigate to: https://nodeapi-production-ebd3.up.railway.app
 
 ## Installation
 Clone the repository:
