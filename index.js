@@ -16,7 +16,6 @@ const app = express()
 app.use(express.json())
 
 // Middleware for handling CORS Policy
-// Option 1: Allow all origins with Default of cors(*)
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -29,7 +28,7 @@ app.use('/', unitOfMeasuresRoute)
 app.use('/', categoriesRoute)
 app.use('/', ingredientsRecipeRoute)
 // swagger documentation
-app.use('/docs', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
 const PORT = process.env.PORT || 5555;
 
