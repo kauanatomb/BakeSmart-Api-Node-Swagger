@@ -12,9 +12,6 @@ const swaggerDocument = require('./swagger_documentation.json')
 
 const app = express()
 
-// middleware for parsing request body
-app.use(express.json())
-
 // Middleware for handling CORS Policy
 app.use(cors({
   origin: '*',
@@ -22,11 +19,16 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// middleware for parsing request body
+app.use(express.json())
+
+//Routes
 app.use('/', recipesRoute)
 app.use('/', ingredientsRoute)
 app.use('/', unitOfMeasuresRoute)
 app.use('/', categoriesRoute)
 app.use('/', ingredientsRecipeRoute)
+
 // swagger documentation
 app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 

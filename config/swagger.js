@@ -2,9 +2,9 @@ module.exports = {
   info: {
     version: '1.0.0',
     title: 'BakeSmart API',
-    description: 'Documentação da API da BakeSmart',
+    description: 'Documentation of BakeSmart API',
   },
-  host: 'localhost:3000',
+  host: 'nodeapi-production-ebd3.up.railway.app',
   schemes: ['http', 'https'],
   consumes: ['application/json'],
   produces: ['application/json'],
