@@ -8,7 +8,6 @@
   "host": "nodeapi-production-ebd3.up.railway.app",
   "basePath": "/",
   "schemes": [
-    "http",
     "https"
   ],
   "securityDefinitions": {

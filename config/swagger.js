@@ -5,7 +5,7 @@ module.exports = {
     description: 'Documentation of BakeSmart API',
   },
   host: 'nodeapi-production-ebd3.up.railway.app',
-  schemes: ['http', 'https'],
+  schemes: 'https',
   consumes: ['application/json'],
   produces: ['application/json'],
   securityDefinitions: {
