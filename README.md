@@ -16,7 +16,7 @@ Open your browser and navigate to: https://nodeapi-production-ebd3.up.railway.ap
 ## Installation
 Clone the repository:
 ```
-git clone git@github.com:kauanatomb/BakeSmart-Api-Node---Reprograma.git
+git clone git@github.com:kauanatomb/BakeSmart-Api-Node-Swagger.git
 ```
 Install dependencies:
 ```
