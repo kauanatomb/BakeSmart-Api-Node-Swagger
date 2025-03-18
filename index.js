@@ -32,7 +32,7 @@ app.use('/', ingredientsRecipeRoute)
 // swagger documentation
 app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
-const PORT = process.env.PORT || 5555;
+const PORT = process.env.PORT || 3000;
 
 mongoose
 .connect(mongoDBURL)
