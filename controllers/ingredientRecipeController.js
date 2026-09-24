@@ -2,145 +2,134 @@ const IngredientRecipe = require('../models/ingredientRecipeModel');
 const Ingredient = require('../models/ingredientModel');
 const UnitOfMeasure = require('../models/unitOfMeasureModel');
 const Recipe = require('../models/recipeModel');
+const { calculateCost } = require('../services/costService');
 
-const getAllIngredientsRecipe = async (req, res) => {
-  const { recipeId } = req.params;
+const getAllIngredientsRecipe = async (request, response, next) => {
+  const { recipeId } = request.params;
   try {
-    const ingredientsRecipe = await IngredientRecipe.find({recipe: recipeId})
+    const ingredientsRecipe = await IngredientRecipe.find({ recipe: recipeId })
       .populate('ingredient')
-      .populate('unitOfMeasure')
+      .populate('unitOfMeasure');
 
-    const costRecipe = await calculateCost(ingredientsRecipe)
+    const costRecipe = await calculateCost(ingredientsRecipe);
 
-    res.json({
-      count: ingredientsRecipe.length, 
+    response.json({
+      count: ingredientsRecipe.length,
       data: ingredientsRecipe,
-      price: costRecipe
+      price: costRecipe,
     });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    next(error);
   }
 };
 
-const addIngredientsToRecipe = async (req, res) => {
-  const { recipeId } = req.params;
-  const { ingredients } = req.body;
+const addIngredientsToRecipe = async (request, response, next) => {
+  const { recipeId } = request.params;
+  const { ingredients } = request.body;
 
   try {
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) {
-      return res.status(404).json({ message: 'Recipe not found' });
+      return response.status(404).json({ message: 'Recipe not found' });
     }
 
     if (!Array.isArray(ingredients)) {
-      return res.status(400).json({ message: 'Ingredients should be an array' });
+      return response.status(400).json({ message: 'Ingredients should be an array' });
     }
-    
-    const createdIngredients = await Promise.all(ingredients.map(async (ingredientData) => {
+
+    const createdIngredients = [];
+
+    for (const ingredientData of ingredients) {
       const { ingredientId, unitOfMeasureId, quantity } = ingredientData;
 
       const unitOfMeasure = await UnitOfMeasure.findById(unitOfMeasureId);
       const ingredient = await Ingredient.findById(ingredientId);
 
       if (!ingredient || !unitOfMeasure) {
-        return res.status(404).json({ message: `Ingredient or unit of measure not found ${unitOfMeasureId} ${ingredientId}` });
+        return response.status(404).json({
+          message: `Ingredient or unit of measure not found for ingredient '${ingredientId}' / unit '${unitOfMeasureId}'`,
+        });
       }
 
       const ingredientRecipe = new IngredientRecipe({
         recipe: recipeId,
         ingredient: ingredient._id,
-        quantity: quantity,
+        quantity,
         unitOfMeasure: unitOfMeasure._id,
       });
-      return await ingredientRecipe.save();
-    }));
-    res.status(201).json(createdIngredients);
+
+      createdIngredients.push(await ingredientRecipe.save());
+    }
+
+    response.status(201).json(createdIngredients);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };
 
-const updateIngredientsForRecipe = async (request, response) => {
+const updateIngredientsForRecipe = async (request, response, next) => {
   try {
-    const { id } = request.params;
+    const { recipeId } = request.params;
     const { ingredients } = request.body;
-    const updatedIngredients = await Promise.all(ingredients.map(async (ingredientData) => {
+
+    if (!Array.isArray(ingredients) || ingredients.length === 0) {
+      return response.status(400).json({ message: 'Ingredients should be a non-empty array' });
+    }
+
+    const updatedIngredients = [];
+
+    for (const ingredientData of ingredients) {
       const { ingredientName, quantity, unitOfMeasureUnit } = ingredientData;
 
       const unitOfMeasure = await UnitOfMeasure.findOne({ unit: unitOfMeasureUnit });
       const ingredient = await Ingredient.findOne({ name: ingredientName });
 
       if (!ingredient || !unitOfMeasure) {
-        return res.status(404).json({ message: 'Ingredient or unit of measure not found' });
+        return response.status(404).json({
+          message: `Ingredient '${ingredientName}' or unit of measure '${unitOfMeasureUnit}' not found`,
+        });
       }
 
       const updatedIngredient = await IngredientRecipe.findOneAndUpdate(
-        { recipe: id, ingredient: ingredient }, // Critério de busca
-        { quantity, unitOfMeasure }, // Novos dados do ingrediente
-        { new: true } // Retorna o novo documento atualizado
+        { recipe: recipeId, ingredient: ingredient._id },
+        { quantity, unitOfMeasure: unitOfMeasure._id },
+        { new: true }
       );
 
-      return updatedIngredient;
-    }));
+      if (!updatedIngredient) {
+        return response.status(404).json({
+          message: `No ingredient recipe found for recipe '${recipeId}' and ingredient '${ingredientName}'`,
+        });
+      }
+
+      updatedIngredients.push(updatedIngredient);
+    }
 
     response.status(200).json({ message: 'Ingredients updated successfully', updatedIngredients });
   } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
+    next(error);
   }
 };
 
-const deleteOneIngredientRecipe = async (req, resp) => {
+const deleteOneIngredientRecipe = async (request, response, next) => {
   try {
-    const { recipeId, id } = req.params;
+    const { recipeId, id } = request.params;
 
-    IngredientRecipe.deleteOne({ ingredient: id, recipe: recipeId })
-    .then((result) => {
-      console.log(`${result} removed with sucess!`);
-    })
-    .catch((error) => {
-      console.error('Error to remove document:', error);
-    });
+    const result = await IngredientRecipe.deleteOne({ ingredient: id, recipe: recipeId });
 
-    return resp.status(200).send({ message: 'Ingredient Recipe deleted successfully' });
+    if (result.deletedCount === 0) {
+      return response.status(404).json({ message: 'Ingredient Recipe not found' });
+    }
+
+    return response.status(200).send({ message: 'Ingredient Recipe deleted successfully' });
   } catch (error) {
-    console.log(error.message);
-    resp.status(500).send({ message: error.message });
+    next(error);
   }
 };
-
-async function calculateCost(ingredientsRecipe) {
-  let totalCost = 0;
-
-  for (const { recipe, ingredient, quantity, unitOfMeasure } of ingredientsRecipe) {
-    const ingrediente = await Ingredient.findById(ingredient).populate('unitOfMeasure').exec();
-    const recipeIngredientUnit = unitOfMeasure.unit;
-
-    if (recipeIngredientUnit !== ingrediente.unitOfMeasure.unit) {
-      const convertedQuantity = convertUnitOfMeasure(quantity, recipeIngredientUnit, ingrediente.unitOfMeasure.unit);
-      const cost = (convertedQuantity / ingrediente.quantity) * ingrediente.price;
-      totalCost += cost;
-    } else {
-      const cost = (quantity / ingrediente.quantity) * ingrediente.price;
-      totalCost += cost;
-    }
-  }
-  return totalCost;
-}
-
-function convertUnitOfMeasure(quantity, recipeUnit, ingredientUnit) {
-  if (recipeUnit === "Kilograma" && ingredientUnit === "Gramas") {
-    return quantity * 1000
-  } else if (recipeUnit === "Gramas" && ingredientUnit === "Kilograma") {
-    return quantity / 1000
-  } else {
-    throw new Error(`Incompatible units for conversion ${quantity} ${recipeUnit} ${ingredientUnit} `);
-  }
-}
 
 module.exports = {
   getAllIngredientsRecipe,
   addIngredientsToRecipe,
   updateIngredientsForRecipe,
-  deleteOneIngredientRecipe
+  deleteOneIngredientRecipe,
 };

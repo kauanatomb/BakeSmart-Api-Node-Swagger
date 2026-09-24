@@ -9,6 +9,7 @@ const ingredientsRecipeRoute = require('./routes/ingredientsRecipeRoute.js')
 const cors = require('cors')
 const swaggerUI = require('swagger-ui-express')
 const swaggerDocument = require('./swagger_documentation.json')
+const { notFound, errorHandler } = require('./middleware/errorHandler')
 
 const app = express()
 
@@ -31,6 +32,11 @@ app.use('/', ingredientsRecipeRoute)
 
 // swagger documentation
 app.use('/', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+
+app.use(notFound);
+
+// centralized error handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3000;
 

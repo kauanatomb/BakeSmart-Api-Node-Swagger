@@ -1,80 +1,81 @@
 const Recipe = require('../models/recipeModel');
 const IngredientRecipe = require('../models/ingredientRecipeModel');
-const Ingredient = require('../models/ingredientModel');
+const { calculateCost } = require('../services/costService');
 
-const createRecipe = async (request, response) => {
+const createRecipe = async (request, response, next) => {
   try {
     const { name, description, cookTime } = request.body;
 
-    const newRecipe = { 
-      name, 
-      description, 
-      cookTime
-    };
+    if (!name || !description) {
+      return response.status(400).send({ message: 'Name and description are required' });
+    }
+
+    const newRecipe = { name, description, cookTime };
 
     const recipe = await Recipe.create(newRecipe);
 
     return response.status(201).send({ _id: recipe._id });
   } catch (error) {
-    console.log(error.message);
-    return response.status(500).send({ message: `Internal Server Error` });
+    next(error);
   }
 };
 
-const getAllRecipes = async (request, response) => {
+const getAllRecipes = async (request, response, next) => {
   try {
     const recipes = await Recipe.find({}).lean();
-    const recipesWithIngredients = [];
+    const recipeIds = recipes.map((recipe) => recipe._id);
 
-    for (const recipe of recipes) {
-      const ingredientsRecipe = await IngredientRecipe.find({ recipe: recipe._id })
-        .populate('ingredient', 'name')
-        .populate('unitOfMeasure', 'unit')
-        .lean();
+    const ingredientRecipes = await IngredientRecipe.find({ recipe: { $in: recipeIds } })
+      .populate('ingredient', 'name')
+      .populate('unitOfMeasure', 'unit')
+      .lean();
 
-      const ingredients = ingredientsRecipe.map(({ ingredient, quantity, unitOfMeasure }) => ({
-        _id: ingredient._id,
-        name: ingredient.name,
-        quantity,
-        unitOfMeasure: {
-          _id: unitOfMeasure._id,
-          unit: unitOfMeasure.unit,
-        },
-      }));
-
-      const recipeWithIngredients = {
-        _id: recipe._id,
-        name: recipe.name,
-        description: recipe.description,
-        cookTime: recipe.cookTime,
-        ingredients
-      };
-
-      recipesWithIngredients.push(recipeWithIngredients);
-    }
+    const recipesWithIngredients = recipes.map((recipe) => ({
+      _id: recipe._id,
+      name: recipe.name,
+      description: recipe.description,
+      cookTime: recipe.cookTime,
+      ingredients: ingredientRecipes
+        .filter(({ recipe: recipeId, ingredient, unitOfMeasure }) =>
+          String(recipeId) === String(recipe._id) && ingredient && unitOfMeasure
+        )
+        .map(({ ingredient, quantity, unitOfMeasure }) => ({
+          _id: ingredient._id,
+          name: ingredient.name,
+          quantity,
+          unitOfMeasure: {
+            _id: unitOfMeasure._id,
+            unit: unitOfMeasure.unit,
+          },
+        })),
+    }));
 
     response.json({ data: recipesWithIngredients });
   } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
+    next(error);
   }
 };
 
-const getOneRecipe = async (request,response) => {
+const getOneRecipe = async (request, response, next) => {
   try {
-    const userId = request.user.id
     const { id } = request.params;
-    const recipe = await Recipe.findOne({ _id: id, owner: userId }).lean();
-    const recipesWithIngredients = [];
+
+    const recipe = await Recipe.findById(id).lean();
+
+    if (!recipe) {
+      return response.status(404).json({ message: 'Recipe not found' });
+    }
 
     const ingredientsRecipe = await IngredientRecipe.find({ recipe: id })
       .populate('ingredient', 'name')
       .populate('unitOfMeasure', 'unit')
       .lean();
 
-      const costRecipe = await calculateCost(ingredientsRecipe)
+    const costRecipe = await calculateCost(ingredientsRecipe);
 
-      const ingredients = ingredientsRecipe.map(({ ingredient, quantity, unitOfMeasure }) => ({
+    const ingredients = ingredientsRecipe
+      .filter(({ ingredient, unitOfMeasure }) => ingredient && unitOfMeasure)
+      .map(({ ingredient, quantity, unitOfMeasure }) => ({
         _id: ingredient._id,
         name: ingredient.name,
         quantity,
@@ -84,31 +85,26 @@ const getOneRecipe = async (request,response) => {
         },
       }));
 
-      const recipeWithIngredients = {
-        _id: recipe._id,
-        name: recipe.name,
-        description: recipe.description,
-        cookTime: recipe.cookTime,
-        ingredients,
-        costRecipe
-      };
+    const recipeWithIngredients = {
+      _id: recipe._id,
+      name: recipe.name,
+      description: recipe.description,
+      cookTime: recipe.cookTime,
+      ingredients,
+      costRecipe,
+    };
 
-      recipesWithIngredients.push(recipeWithIngredients);
-
-    return response.status(200).json({ 
-      data: recipeWithIngredients
-    })
+    return response.status(200).json({ data: recipeWithIngredients });
   } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message })
+    next(error);
   }
-}
+};
 
-const updateOneRecipe = async (request, response) => {
+const updateOneRecipe = async (request, response, next) => {
   try {
     const { id } = request.params;
 
-    const updatedRecipe = await Recipe.findOneAndUpdate({ _id: id }, request.body, { new: true });
+    const updatedRecipe = await Recipe.findByIdAndUpdate(id, request.body, { new: true });
 
     if (!updatedRecipe) {
       return response.status(404).json({ message: 'Recipe not found' });
@@ -116,71 +112,32 @@ const updateOneRecipe = async (request, response) => {
 
     response.status(200).json({ message: 'Recipe updated successfully', updatedRecipe });
   } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message });
+    next(error);
   }
 };
 
-const deleteOneRecipe = async (request, response) => {
+const deleteOneRecipe = async (request, response, next) => {
   try {
-    const { id } = request.params
+    const { id } = request.params;
 
-    IngredientRecipe.deleteMany({ recipe: id })
-    .then((result) => {
-      console.log(`${result.deletedCount} documents removed with sucess!`);
-    })
-    .catch((error) => {
-      console.error('Error to remove document:', error);
-    });
+    const recipe = await Recipe.findByIdAndDelete(id);
 
-    const result = await Recipe.findByIdAndDelete(id)
-
-    if (!result) {
-      return response.status(404).json( {message: 'Recipe not found' })
+    if (!recipe) {
+      return response.status(404).json({ message: 'Recipe not found' });
     }
 
-    return response.status(200).send({ message: 'Recipe deleted successfully' })
+    await IngredientRecipe.deleteMany({ recipe: id });
+
+    return response.status(200).send({ message: 'Recipe deleted successfully' });
   } catch (error) {
-    console.log(error.message);
-    response.status(500).send({ message: error.message })
+    next(error);
   }
-}
-
-async function calculateCost(ingredientsRecipe) {
-  let totalCost = 0;
-
-  for (const { recipe, ingredient, quantity, unitOfMeasure } of ingredientsRecipe) {
-    const ingrediente = await Ingredient.findById(ingredient).populate('unitOfMeasure').exec();
-    const recipeIngredientUnit = unitOfMeasure.unit;
-
-    if (recipeIngredientUnit !== ingrediente.unitOfMeasure.unit) {
-      const convertedQuantity = convertUnitOfMeasure(quantity, recipeIngredientUnit, ingrediente.unitOfMeasure.unit);
-      const cost = (convertedQuantity / ingrediente.quantity) * ingrediente.price;
-      totalCost += cost;
-    } else {
-      const cost = (quantity / ingrediente.quantity) * ingrediente.price;
-      totalCost += cost;
-    }
-  }
-  
-  return totalCost;
-}
-
-function convertUnitOfMeasure(quantity, recipeUnit, ingredientUnit) {
-  if (recipeUnit === "Kilograma" && ingredientUnit === "Gramas") {
-    return quantity * 1000
-  } else if (recipeUnit === "Gramas" && ingredientUnit === "Kilograma") {
-    return quantity / 1000
-  } else {
-    throw new Error(`Incompatible units for conversion ${quantity} ${recipeUnit} ${ingredientUnit} `);
-  }
-}
+};
 
 module.exports = {
   createRecipe,
   getAllRecipes,
   getOneRecipe,
   updateOneRecipe,
-  deleteOneRecipe
+  deleteOneRecipe,
 };
-
