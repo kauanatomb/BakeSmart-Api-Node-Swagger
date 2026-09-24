@@ -4,8 +4,8 @@ const getAllCategories = async (req, res) => {
   try {
     const categories = await Category.find({}, 'name');
     res.json({
-      count: categories.length, 
-      categories: categories});
+      count: categories.length,
+      data: categories});
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

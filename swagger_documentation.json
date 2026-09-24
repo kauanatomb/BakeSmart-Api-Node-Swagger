@@ -3,140 +3,85 @@
   "info": {
     "version": "1.0.0",
     "title": "BakeSmart API",
-    "description": "Documentation of BakeSmart API"
+    "description": "BakeSmart API helps small culinary entrepreneurs and cooking enthusiasts manage the production costs of their recipes. It enables users to register ingredients, costs, categories and units of measure, and automatically calculates total recipe costs to help set competitive selling prices."
   },
   "host": "bakesmart-api-node-swagger.onrender.com",
   "basePath": "/",
-  "schemes": [
-    "https"
-  ],
-  "definitions": {
-    "Recipe": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the recipe"
-        },
-        "description": {
-          "type": "string",
-          "description": "A brief description of the recipe"
-        },
-        "cookTime": {
-          "type": "string",
-          "description": "The time required to cook the recipe"
-        }
-      }
-    },
-    "Ingredient": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the ingredient"
-        },
-        "quantity": {
-          "type": "number",
-          "description": "The quantity of the ingredient"
-        },
-        "unitOfMeasure": {
-          "type": "string",
-          "description": "The unit of measure for the ingredient"
-        },
-        "category": {
-          "type": "string",
-          "description": "The category of the ingredient"
-        },
-        "brand": {
-          "type": "string",
-          "description": "The brand of the ingredient"
-        },
-        "price": {
-          "type": "number",
-          "description": "The price of the ingredient"
-        }
-      }
-    },
-    "Category": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string",
-          "description": "The name of the category"
-        }
-      }
-    },
-    "UnitOfMeasure": {
-      "type": "object",
-      "properties": {
-        "unit": {
-          "type": "string",
-          "description": "The unit of measure"
-        },
-        "abbreviation": {
-          "type": "string",
-          "description": "The abbreviation of the unit"
-        }
-      }
-    }
-  },
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "tags": [
+    { "name": "Recipe", "description": "Recipe CRUD operations" },
+    { "name": "Recipe Ingredients", "description": "Manage the ingredients linked to a recipe" },
+    { "name": "Ingredient", "description": "Ingredient CRUD operations" },
+    { "name": "Category", "description": "Categories used to organize ingredients" },
+    { "name": "UnitOfMeasure", "description": "Units of measure used by ingredients and recipes" }
   ],
   "paths": {
-    "/categories": {
-      "get": {
-        "tags": ["Category"],
-        "description": "Get all categories",
+    "/recipes": {
+      "post": {
+        "tags": ["Recipe"],
+        "summary": "Create a recipe",
+        "description": "Creates a new recipe. Returns the created recipe.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/RecipeRequest" }
+          }
+        ],
         "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Category"
-              }
-            },
-            "examples": {
-              "application/json": [
-                { "name": "Fruits" },
-                { "name": "Vegetables" }
-              ]
-            }
+          "201": {
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/Recipe" }
           },
-          "404": {
-            "description": "No categories found"
+          "400": {
+            "description": "Bad Request - name and description are required"
           },
           "500": {
             "description": "Internal Server Error"
           }
         }
       },
-      "post": {
-        "tags": ["Category"],
-        "description": "Create a new category",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/Category"
-            }
-          }
-        ],
+      "get": {
+        "tags": ["Recipe"],
+        "summary": "List all recipes",
+        "description": "Returns all recipes with their linked ingredients.",
         "responses": {
-          "201": {
-            "description": "Created",
+          "200": {
+            "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Category"
+              "type": "object",
+              "properties": {
+                "count": { "type": "integer", "example": 2 },
+                "data": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/RecipeWithIngredients" }
+                }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 1,
+                "data": [
+                  {
+                    "_id": "64f1a2b3c4d5e6f708192a5b",
+                    "name": "Chocolate Cake",
+                    "description": "Rich and moist chocolate cake",
+                    "cookTime": "1 hour and 30 minutes",
+                    "ingredients": [
+                      {
+                        "_id": "64f1a2b3c4d5e6f708192a1b",
+                        "name": "Wheat Flour",
+                        "quantity": 250,
+                        "unitOfMeasure": { "_id": "64f1a2b3c4d5e6f708192a4b", "unit": "Grams" }
+                      }
+                    ]
+                  }
+                ]
+              }
             }
-          },
-          "400": {
-            "description": "Bad Request"
           },
           "500": {
             "description": "Internal Server Error"
@@ -144,56 +89,280 @@
         }
       }
     },
-    "/unitofmeasures": {
+    "/recipes/{id}": {
       "get": {
-        "tags": ["UnitOfMeasure"],
-        "description": "Get all unit of measures",
+        "tags": ["Recipe"],
+        "summary": "Get one recipe",
+        "description": "Returns a single recipe with its ingredients and the calculated production cost.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/UnitOfMeasure"
-              }
-            },
+            "schema": { "$ref": "#/definitions/RecipeWithIngredients" },
             "examples": {
-              "application/json": [
-                { "unit": "Kilogram", "abbreviation": "kg" },
-                { "unit": "Liter", "abbreviation": "L" }
-              ]
+              "application/json": {
+                "_id": "64f1a2b3c4d5e6f708192a5b",
+                "name": "Chocolate Cake",
+                "description": "Rich and moist chocolate cake",
+                "cookTime": "1 hour and 30 minutes",
+                "ingredients": [
+                  {
+                    "_id": "64f1a2b3c4d5e6f708192a1b",
+                    "name": "Wheat Flour",
+                    "quantity": 250,
+                    "unitOfMeasure": { "_id": "64f1a2b3c4d5e6f708192a4b", "unit": "Grams" }
+                  }
+                ],
+                "costRecipe": 12.5
+              }
             }
           },
           "404": {
-            "description": "No unit of measures found"
+            "description": "Recipe not found"
           },
           "500": {
             "description": "Internal Server Error"
           }
         }
       },
-      "post": {
-        "tags": ["UnitOfMeasure"],
-        "description": "Create a new unit of measure",
+      "put": {
+        "tags": ["Recipe"],
+        "summary": "Update a recipe",
+        "description": "Updates an existing recipe. Returns the updated recipe.",
         "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/RecipeRequest" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Recipe updated successfully" },
+                "updatedRecipe": { "$ref": "#/definitions/Recipe" }
+              }
+            }
+          },
+          "404": {
+            "description": "Recipe not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Recipe"],
+        "summary": "Delete a recipe",
+        "description": "Deletes a recipe and removes all of its ingredient links.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Recipe deleted successfully" }
+              }
+            }
+          },
+          "404": {
+            "description": "Recipe not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/recipes/{recipeId}/ingredients": {
+      "post": {
+        "tags": ["Recipe Ingredients"],
+        "summary": "Add ingredients to a recipe",
+        "description": "Links new ingredients to a recipe. Returns the created ingredient links.",
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          },
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/UnitOfMeasure"
+              "type": "object",
+              "properties": {
+                "ingredients": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/IngredientRecipeRequestItem" }
+                }
+              }
             }
           }
         ],
         "responses": {
           "201": {
             "description": "Created",
+            "schema": { "type": "array", "items": { "$ref": "#/definitions/IngredientRecipe" } }
+          },
+          "404": {
+            "description": "Recipe, ingredient or unit of measure not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "get": {
+        "tags": ["Recipe Ingredients"],
+        "summary": "List ingredients of a recipe",
+        "description": "Returns the ingredients linked to a recipe together with the total recipe cost.",
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
             "schema": {
-              "$ref": "#/definitions/UnitOfMeasure"
+              "type": "object",
+              "properties": {
+                "count": { "type": "integer" },
+                "data": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/IngredientRecipe" }
+                },
+                "price": { "type": "number", "description": "Total recipe cost", "example": 12.5 }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
+      "put": {
+        "tags": ["Recipe Ingredients"],
+        "summary": "Update ingredients of a recipe",
+        "description": "Updates the quantity and unit of measure of the ingredients linked to a recipe.",
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ingredients": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/IngredientRecipeUpdateItem" }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Ingredients updated successfully" },
+                "updatedIngredients": {
+                  "type": "array",
+                  "items": { "$ref": "#/definitions/IngredientRecipe" }
+                }
+              }
             }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request - ingredients should be a non-empty array"
+          },
+          "404": {
+            "description": "Ingredient, unit of measure or recipe ingredient not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/recipes/{recipeId}/ingredients/{id}": {
+      "delete": {
+        "tags": ["Recipe Ingredients"],
+        "summary": "Remove an ingredient from a recipe",
+        "description": "Removes an ingredient link from a recipe.",
+        "parameters": [
+          {
+            "name": "recipeId",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Recipe id"
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "description": "Ingredient recipe id"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Ingredient Recipe deleted successfully" }
+              }
+            }
+          },
+          "404": {
+            "description": "Ingredient Recipe not found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -204,14 +373,16 @@
     "/ingredients": {
       "get": {
         "tags": ["Ingredient"],
-        "description": "See a list of all ingredients",
+        "summary": "List all ingredients",
+        "description": "Returns all ingredients with their category and unit of measure.",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Ingredient"
+              "type": "object",
+              "properties": {
+                "count": { "type": "integer" },
+                "data": { "type": "array", "items": { "$ref": "#/definitions/Ingredient" } }
               }
             }
           },
@@ -222,26 +393,26 @@
       },
       "post": {
         "tags": ["Ingredient"],
-        "description": "Create a new ingredient",
+        "summary": "Create an ingredient",
+        "description": "Creates a new ingredient. Category and unit of measure are matched by name.",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            }
+            "schema": { "$ref": "#/definitions/IngredientRequest" }
           }
         ],
         "responses": {
           "201": {
             "description": "Created",
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            }
+            "schema": { "$ref": "#/definitions/Ingredient" }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request - missing required fields"
+          },
+          "404": {
+            "description": "Category or unit of measure not found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -252,37 +423,33 @@
     "/ingredients/{id}": {
       "put": {
         "tags": ["Ingredient"],
-        "description": "Edit an ingredient",
+        "summary": "Update an ingredient",
+        "description": "Updates an existing ingredient. Category and unit of measure are matched by name.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The ID of the ingredient to edit"
+            "description": "Ingredient id"
           },
           {
             "name": "body",
             "in": "body",
             "required": true,
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            },
-            "description": "Ingredient object that needs to be edited"
+            "schema": { "$ref": "#/definitions/IngredientRequest" }
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            }
+            "schema": { "$ref": "#/definitions/Ingredient" }
           },
           "400": {
-            "description": "Bad Request"
+            "description": "Bad Request - category and unit of measure are required"
           },
           "404": {
-            "description": "Ingredient not found"
+            "description": "Ingredient, category or unit of measure not found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -291,19 +458,26 @@
       },
       "delete": {
         "tags": ["Ingredient"],
-        "description": "Delete an ingredient",
+        "summary": "Delete an ingredient",
+        "description": "Deletes an ingredient and removes its references from recipes.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The ID of the ingredient to delete"
+            "description": "Ingredient id"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK"
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": { "type": "string", "example": "Ingredient deleted successfully" }
+              }
+            }
           },
           "404": {
             "description": "Ingredient not found"
@@ -315,22 +489,21 @@
       },
       "get": {
         "tags": ["Ingredient"],
-        "description": "Get one ingredient",
+        "summary": "Get one ingredient",
+        "description": "Returns a single ingredient by id.",
         "parameters": [
           {
             "name": "id",
             "in": "path",
             "required": true,
             "type": "string",
-            "description": "The ID of the ingredient to retrieve"
+            "description": "Ingredient id"
           }
         ],
         "responses": {
           "200": {
             "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Ingredient"
-            }
+            "schema": { "$ref": "#/definitions/Ingredient" }
           },
           "404": {
             "description": "Ingredient not found"
@@ -341,61 +514,251 @@
         }
       }
     },
-    "/recipes": {
+    "/categories": {
+      "get": {
+        "tags": ["Category"],
+        "summary": "List all categories",
+        "description": "Returns all available categories.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "count": { "type": "integer", "example": 2 },
+                "data": { "type": "array", "items": { "$ref": "#/definitions/Category" } }
+              }
+            },
+            "examples": {
+              "application/json": {
+                "count": 2,
+                "data": [
+                  { "_id": "64f1a2b3c4d5e6f708192a1b", "name": "Flours" },
+                  { "_id": "64f1a2b3c4d5e6f708192a2b", "name": "Sweeteners" }
+                ]
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      },
       "post": {
-        "tags": ["Recipe"],
-        "description": "Create a new recipe",
+        "tags": ["Category"],
+        "summary": "Create a category",
+        "description": "Creates a new category.",
         "parameters": [
           {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/Recipe"
+              "type": "object",
+              "required": ["name"],
+              "properties": { "name": { "type": "string", "example": "Flours" } }
             }
           }
         ],
         "responses": {
           "201": {
-            "description": "Recipe created successfully",
-            "schema": {
-              "$ref": "#/definitions/Recipe"
-            }
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/Category" }
           },
           "400": {
-            "description": "Invalid input data"
+            "description": "Bad Request - invalid or duplicate category name"
           },
           "500": {
-            "description": "Internal server error"
+            "description": "Internal Server Error"
           }
         }
-      },
+      }
+    },
+    "/unitofmeasures": {
       "get": {
-        "tags": ["Recipe"],
-        "description": "Get all recipes",
+        "tags": ["UnitOfMeasure"],
+        "summary": "List all units of measure",
+        "description": "Returns all available units of measure.",
         "responses": {
           "200": {
             "description": "OK",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/Recipe"
+              "type": "object",
+              "properties": {
+                "count": { "type": "integer", "example": 2 },
+                "data": { "type": "array", "items": { "$ref": "#/definitions/UnitOfMeasure" } }
               }
             },
             "examples": {
-              "application/json": [
-                { "name": "Chocolate Cake", "description": "Delicious chocolate cake", "cookTime": "1 hour" },
-                { "name": "Pasta", "description": "Easy pasta recipe", "cookTime": "30 minutes" }
-              ]
+              "application/json": {
+                "count": 2,
+                "data": [
+                  { "_id": "64f1a2b3c4d5e6f708192a3b", "unit": "Kilogram", "abbreviation": "kg" },
+                  { "_id": "64f1a2b3c4d5e6f708192a4b", "unit": "Grams", "abbreviation": "g" }
+                ]
+              }
             }
           },
-          "404": {
-            "description": "No recipes found"
-          },
           "500": {
-            "description": "Internal server error"
+            "description": "Internal Server Error"
           }
         }
+      },
+      "post": {
+        "tags": ["UnitOfMeasure"],
+        "summary": "Create a unit of measure",
+        "description": "Creates a new unit of measure. The abbreviation is derived automatically.",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": ["unit"],
+              "properties": {
+                "unit": {
+                  "type": "string",
+                  "enum": ["Kilogram", "Grams", "Unit", "Liter", "Milliliter"],
+                  "example": "Grams"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/UnitOfMeasure" }
+          },
+          "400": {
+            "description": "Bad Request - invalid unit name"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Category": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Auto-generated id" },
+        "name": { "type": "string", "example": "Flours" }
+      }
+    },
+    "UnitOfMeasure": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Auto-generated id" },
+        "unit": {
+          "type": "string",
+          "enum": ["Kilogram", "Grams", "Unit", "Liter", "Milliliter"],
+          "example": "Grams"
+        },
+        "abbreviation": { "type": "string", "example": "g" }
+      }
+    },
+    "IngredientRequest": {
+      "type": "object",
+      "required": ["name", "quantity", "brand", "category", "unitOfMeasure", "price"],
+      "properties": {
+        "name": { "type": "string", "example": "Wheat Flour" },
+        "quantity": { "type": "number", "description": "Purchased package quantity", "example": 500 },
+        "brand": { "type": "string", "example": "Dona Benta" },
+        "category": { "type": "string", "description": "Name of an existing category", "example": "Flours" },
+        "unitOfMeasure": { "type": "string", "description": "Name of an existing unit of measure", "example": "Grams" },
+        "price": { "type": "number", "description": "Package price", "example": 8.5 }
+      }
+    },
+    "Ingredient": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Auto-generated id" },
+        "name": { "type": "string", "example": "Wheat Flour" },
+        "quantity": { "type": "number", "example": 500 },
+        "brand": { "type": "string", "example": "Dona Benta" },
+        "category": { "$ref": "#/definitions/Category" },
+        "unitOfMeasure": { "$ref": "#/definitions/UnitOfMeasure" },
+        "price": { "type": "number", "example": 8.5 }
+      }
+    },
+    "RecipeRequest": {
+      "type": "object",
+      "required": ["name", "description"],
+      "properties": {
+        "name": { "type": "string", "example": "Chocolate Cake" },
+        "description": { "type": "string", "example": "Rich and moist chocolate cake" },
+        "cookTime": { "type": "string", "example": "1 hour and 30 minutes" }
+      }
+    },
+    "Recipe": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Auto-generated id" },
+        "name": { "type": "string", "example": "Chocolate Cake" },
+        "description": { "type": "string", "example": "Rich and moist chocolate cake" },
+        "cookTime": { "type": "string", "example": "1 hour and 30 minutes" }
+      }
+    },
+    "RecipeIngredientItem": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Ingredient id" },
+        "name": { "type": "string", "example": "Wheat Flour" },
+        "quantity": { "type": "number", "example": 250 },
+        "unitOfMeasure": {
+          "type": "object",
+          "properties": {
+            "_id": { "type": "string" },
+            "unit": { "type": "string", "example": "Grams" }
+          }
+        }
+      }
+    },
+    "RecipeWithIngredients": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string" },
+        "name": { "type": "string", "example": "Chocolate Cake" },
+        "description": { "type": "string", "example": "Rich and moist chocolate cake" },
+        "cookTime": { "type": "string", "example": "1 hour and 30 minutes" },
+        "ingredients": { "type": "array", "items": { "$ref": "#/definitions/RecipeIngredientItem" } },
+        "costRecipe": {
+          "type": "number",
+          "description": "Total cost of the recipe based on ingredient prices",
+          "example": 12.5
+        }
+      }
+    },
+    "IngredientRecipeRequestItem": {
+      "type": "object",
+      "required": ["ingredientId", "unitOfMeasureId", "quantity"],
+      "properties": {
+        "ingredientId": { "type": "string", "description": "Existing ingredient id" },
+        "unitOfMeasureId": { "type": "string", "description": "Existing unit of measure id" },
+        "quantity": { "type": "number", "description": "Quantity used in the recipe", "example": 250 }
+      }
+    },
+    "IngredientRecipeUpdateItem": {
+      "type": "object",
+      "required": ["ingredientName", "unitOfMeasureUnit", "quantity"],
+      "properties": {
+        "ingredientName": { "type": "string", "description": "Existing ingredient name", "example": "Wheat Flour" },
+        "unitOfMeasureUnit": { "type": "string", "description": "Existing unit name", "example": "Grams" },
+        "quantity": { "type": "number", "description": "Quantity used in the recipe", "example": 250 }
+      }
+    },
+    "IngredientRecipe": {
+      "type": "object",
+      "properties": {
+        "_id": { "type": "string", "description": "Auto-generated id" },
+        "recipe": { "type": "string", "description": "Recipe id" },
+        "ingredient": { "$ref": "#/definitions/Ingredient" },
+        "quantity": { "type": "number", "example": 250 },
+        "unitOfMeasure": { "$ref": "#/definitions/UnitOfMeasure" }
       }
     }
   }

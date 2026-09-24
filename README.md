@@ -9,9 +9,17 @@ BakeSmart API is a Node.js application designed to help small culinary entrepren
 - Unit of Measure Management: Manage units of measure for consistent calculations.
 
 ## API Documentation
-The API is documented using Swagger. To view the documentation:
+The API is documented with Swagger and served automatically by the server using `swagger-ui-express`.
 
-Open your browser and navigate to: https://bakesmart-api-node-swagger.onrender.com
+Open your browser and navigate to: http://localhost:3000
+
+The specification file is `swagger_documentation.json`. Its **structure** (endpoints and HTTP methods) is generated from the route files so it stays in sync with the code:
+
+```
+npm run doc
+```
+
+The **semantic content** (info, tags, definitions, endpoint summaries, parameters, responses and examples) is hand-written directly in `swagger_documentation.json` after generation — so after running `npm run doc`, re-apply the hand-authored enrichment to the generated skeleton.
 
 ## Installation
 Clone the repository:
@@ -22,10 +30,14 @@ Install dependencies:
 ```
 npm install
 ```
-Set up environment variables by creating a .env file in the root directory and adding the following:
+Set up environment variables by copying `.env.example` to `.env` and adding your database URL:
 ```
+cp .env.example .env
+```
+The supported variables are:
+```
+MONGODB_URI=your_database_url
 PORT=3000
-DATABASE_URL=your_database_url
 ```
 
 Start the server:

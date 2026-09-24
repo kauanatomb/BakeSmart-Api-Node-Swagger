@@ -14,7 +14,7 @@ const createRecipe = async (request, response, next) => {
 
     const recipe = await Recipe.create(newRecipe);
 
-    return response.status(201).send({ _id: recipe._id });
+    return response.status(201).send(recipe);
   } catch (error) {
     next(error);
   }
@@ -50,7 +50,7 @@ const getAllRecipes = async (request, response, next) => {
         })),
     }));
 
-    response.json({ data: recipesWithIngredients });
+    response.json({ count: recipesWithIngredients.length, data: recipesWithIngredients });
   } catch (error) {
     next(error);
   }
@@ -94,7 +94,7 @@ const getOneRecipe = async (request, response, next) => {
       costRecipe,
     };
 
-    return response.status(200).json({ data: recipeWithIngredients });
+    return response.status(200).json(recipeWithIngredients);
   } catch (error) {
     next(error);
   }
