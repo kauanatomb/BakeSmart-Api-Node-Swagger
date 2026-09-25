@@ -1,12 +1,11 @@
 const { getAllCategories, createCategory } = require('../controllers/categoryController');
-const { Category } = require('../models/categoryModel');
 
 jest.mock('../models/categoryModel', () => ({
-  Category: {
-    find: jest.fn(),
-    create: jest.fn(),
-  },
+  find: jest.fn(),
+  create: jest.fn(),
 }));
+
+const Category = require('../models/categoryModel');
 
 describe('Category Controller', () => {
   afterEach(() => {
@@ -14,23 +13,17 @@ describe('Category Controller', () => {
   });
 
   describe('getAllCategories', () => {
-    it('should get all categories', async () => {
-      const mockCategories = [{ name: 'Category1' }, { name: 'Category2' }];
+    it('should return all categories', async () => {
+      const mockCategories = [{ _id: '1', name: 'Flours' }, { _id: '2', name: 'Sweeteners' }];
       Category.find.mockResolvedValue(mockCategories);
 
       const req = {};
-      const res = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis(),
-      };
+      const res = { json: jest.fn() };
 
       await getAllCategories(req, res);
 
-      expect(Category.find).toHaveBeenCalled();
-      expect(res.json).toHaveBeenCalledWith({
-        count: mockCategories.length,
-        data: mockCategories,
-      });
+      expect(Category.find).toHaveBeenCalledWith({}, 'name');
+      expect(res.json).toHaveBeenCalledWith({ count: 2, data: mockCategories });
     });
 
     it('should handle errors', async () => {
@@ -39,13 +32,12 @@ describe('Category Controller', () => {
 
       const req = {};
       const res = {
-        json: jest.fn(),
         status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
       };
 
       await getAllCategories(req, res);
 
-      expect(Category.find).toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
     });
@@ -53,36 +45,34 @@ describe('Category Controller', () => {
 
   describe('createCategory', () => {
     it('should create a new category', async () => {
-      const newCategory = { name: 'NewCategory' };
+      const newCategory = { _id: '1', name: 'Flours' };
       Category.create.mockResolvedValue(newCategory);
 
-      const req = { body: newCategory };
+      const req = { body: { name: 'Flours' } };
       const res = {
-        json: jest.fn(),
         status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
       };
 
       await createCategory(req, res);
 
-      expect(Category.create).toHaveBeenCalledWith(newCategory);
+      expect(Category.create).toHaveBeenCalledWith({ name: 'Flours' });
       expect(res.status).toHaveBeenCalledWith(201);
       expect(res.json).toHaveBeenCalledWith(newCategory);
     });
 
     it('should handle errors when creating category', async () => {
       const errorMessage = 'Error creating category';
-      const newCategory = { name: 'NewCategory' };
       Category.create.mockRejectedValue(new Error(errorMessage));
 
-      const req = { body: newCategory };
+      const req = { body: { name: 'Flours' } };
       const res = {
-        json: jest.fn(),
         status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
       };
 
       await createCategory(req, res);
 
-      expect(Category.create).toHaveBeenCalledWith(newCategory);
       expect(res.status).toHaveBeenCalledWith(400);
       expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
     });

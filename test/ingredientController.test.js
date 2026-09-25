@@ -1,174 +1,342 @@
-// const { getAllIngredients, createIngredient } = require('../controllers/ingredientController');
-// const { Ingredient } = require('../models/ingredientModel');
-// const { Category } = require('../models/categoryModel');
-// const { UnitOfMeasure } = require('../models/unitOfMeasureModel');
+const { getAllIngredients, createIngredient, updateIngredient, deleteOneIngredient, getOneIngredient } = require('../controllers/ingredientController');
 
-// jest.mock('../models/ingredientModel', () => ({
-//   Ingredient: {
-//     find: jest.fn(),
-//     create: jest.fn(),
-//     findByIdAndUpdate: jest.fn(),
-//   },
-// }));
+jest.mock('../models/ingredientModel', () => ({
+  find: jest.fn(),
+  create: jest.fn(),
+  findByIdAndUpdate: jest.fn(),
+  findById: jest.fn(),
+  findByIdAndDelete: jest.fn(),
+}));
 
-// // jest.mock('../models/categoryModel', () => ({
-// //   Category: {
-// //     findOne: jest.fn(),
-// //   },
-// // }));
+jest.mock('../models/categoryModel', () => ({
+  findOne: jest.fn(),
+}));
 
-// // jest.mock('../models/unitOfMeasureModel', () => ({
-// //   UnitOfMeasure: {
-// //     findOne: jest.fn(),
-// //   },
-// // }));
+jest.mock('../models/unitOfMeasureModel', () => ({
+  findOne: jest.fn(),
+}));
 
-// describe('Ingredient Controller', () => {
-//   afterEach(() => {
-//     jest.clearAllMocks();
-//   });
+jest.mock('../models/ingredientRecipeModel', () => ({
+  deleteMany: jest.fn(),
+}));
 
-//   describe('getAllIngredients', () => {
-//     it('should get all ingredients', async () => {
-//       const mockIngredients = [
-//         { name: 'Ingredient1', quantity: 1, brand: 'Brand1', price: "1 real", idCategory: "id", idUnitOfMeasure: "id" },
-//         { name: 'Ingredient2', quantity: 2, brand: 'Brand2', price: "50 reais", idCategory: "id", idUnitOfMeasure: "id" },
-//       ];
-//       Ingredient.find.mockResolvedValue(mockIngredients);
+const Ingredient = require('../models/ingredientModel');
+const Category = require('../models/categoryModel');
+const UnitOfMeasure = require('../models/unitOfMeasureModel');
+const IngredientRecipe = require('../models/ingredientRecipeModel');
 
-//       const req = {};
-//       const res = {
-//         json: jest.fn(),
-//       };
+const ingredientPayload = {
+  name: 'Wheat Flour',
+  quantity: 500,
+  brand: 'Dona Benta',
+  category: 'Flours',
+  unitOfMeasure: 'Grams',
+  price: 8.5,
+};
 
-//       await getAllIngredients(req, res);
+const createdIngredient = {
+  _id: 'ing1',
+  name: 'Wheat Flour',
+  quantity: 500,
+  brand: 'Dona Benta',
+  price: 8.5,
+};
 
-//       expect(Ingredient.find).toHaveBeenCalled();
-//       expect(res.json).toHaveBeenCalledWith({
-//         count: mockIngredients.length,
-//         data: mockIngredients,
-//       });
-//     });
+const chain = (first, second) => ({
+  populate: jest.fn().mockReturnValue({
+    populate: jest.fn().mockReturnValue(second),
+  }),
+});
 
-//     it('should handle errors', async () => {
-//       const errorMessage = 'Error retrieving ingredients';
-//       Ingredient.find.mockRejectedValue(new Error(errorMessage));
+describe('Ingredient Controller', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
 
-//       const req = {};
-//       const res = {
-//         status: jest.fn().mockReturnThis(),
-//         json: jest.fn(),
-//       };
+  describe('getAllIngredients', () => {
+    it('should return all ingredients', async () => {
+      const mockIngredients = [{ name: 'Wheat Flour' }];
+      Ingredient.find.mockReturnValue(chain('category', mockIngredients));
 
-//       await getAllIngredients(req, res);
+      const req = {};
+      const res = { json: jest.fn() };
 
-//       expect(Ingredient.find).toHaveBeenCalled();
-//       expect(res.status).toHaveBeenCalledWith(500);
-//       expect(res.json).toHaveBeenCalledWith({ message: errorMessage });
-//     });
-//   });
+      await getAllIngredients(req, res);
 
-  // describe('createIngredient', () => {
-  //   afterEach(() => {
-  //     jest.clearAllMocks();
-  //   });
-  
-  //   it('should create a new ingredient when category and unit of measure are found', async () => {
-  //     const req = {
-  //       body: {
-  //         name: 'IngredientName',
-  //         quantity: 1,
-  //         brand: 'IngredientBrand',
-  //         idCategory: 'CategoryName',
-  //         idUnitOfMeasure: 'UnitOfMeasureUnit',
-  //         price: 10,
-  //       },
-  //     };
-  
-  //     const mockCategory = { _id: 'categoryId' };
-  //     const mockUnitOfMeasure = { _id: 'unitOfMeasureId' };
-  //     const mockCreatedIngredient = { _id: 'createdIngredientId' };
-  
-  //     Category.findOne.mockResolvedValue(mockCategory);
-  //     UnitOfMeasure.findOne.mockResolvedValue(mockUnitOfMeasure);
-  //     Ingredient.create.mockResolvedValue(mockCreatedIngredient);
-  
-  //     const res = {
-  //       status: jest.fn().mockReturnThis(),
-  //       json: jest.fn(),
-  //     };
-  
-  //     await createIngredient(req, res);
-  
-  //     expect(Category.findOne).toHaveBeenCalledWith({ name: req.body.idCategory });
-  //     expect(UnitOfMeasure.findOne).toHaveBeenCalledWith({ unit: req.body.idUnitOfMeasure });
-  //     expect(Ingredient.create).toHaveBeenCalledWith({
-  //       name: req.body.name,
-  //       quantity: req.body.quantity,
-  //       brand: req.body.brand,
-  //       idCategory: mockCategory._id,
-  //       idUnitOfMeasure: mockUnitOfMeasure._id,
-  //       price: req.body.price,
-  //     });
-  //     expect(res.status).toHaveBeenCalledWith(201);
-  //     expect(res.json).toHaveBeenCalledWith(mockCreatedIngredient);
-  //   });
-  
-  //   it('should return error when category is not found', async () => {
-  //     // Simular quando a categoria não é encontrada
-  
-  //     const req = {
-  //       body: {
-  //       },
-  //     };
-  
-  //     const res = {
-  //       status: jest.fn().mockReturnThis(),
-  //       json: jest.fn(),
-  //     };
-  
-  //     await createIngredient(req, res);
-  
-  //     // Verificar se o status e a mensagem de erro são retornados corretamente
-  //   });
-  
-  //   it('should return error when unit of measure is not found', async () => {
-  //     // Simular quando a unidade de medida não é encontrada
-  
-  //     const req = {
-  //       body: {
-  //       },
-  //     };
-  
-  //     const res = {
-  //       status: jest.fn().mockReturnThis(),
-  //       json: jest.fn(),
-  //     };
-  
-  //     await createIngredient(req, res);
-  
-  //     // Verificar se o status e a mensagem de erro são retornados corretamente
-  //   });
-  
-  //   it('should return error when ingredient creation fails', async () => {
-  //     // Simular quando a criação de ingrediente falha
-  
-  //     const req = {
-  //       body: {
-  //       },
-  //     };
-  
-  //     const res = {
-  //       status: jest.fn().mockReturnThis(),
-  //       json: jest.fn(),
-  //     };
-  
-  //     await createIngredient(req, res);
-  //     // mensagem de erro retorna?
-  //   });
-  // });
+      expect(Ingredient.find).toHaveBeenCalledWith({});
+      expect(res.json).toHaveBeenCalledWith({ count: 1, data: mockIngredients });
+    });
 
-  // describe('updateIngredient', () => {
-  //   // testes para update
-  // });
-// });
+    it('should forward errors to the error handler', async () => {
+      const error = new Error('DB down');
+      Ingredient.find.mockReturnValue(
+        chain('category', Promise.reject(error))
+      );
+
+      const req = {};
+      const res = {};
+      const next = jest.fn();
+
+      await getAllIngredients(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('createIngredient', () => {
+    it('should return 400 when required fields are missing', async () => {
+      const req = { body: { name: 'Wheat Flour' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await createIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({
+        message: 'All fields are required: name, quantity, brand, category, unitOfMeasure, price',
+      });
+    });
+
+    it('should return 404 when the category is not found', async () => {
+      Category.findOne.mockResolvedValue(null);
+
+      const req = { body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await createIngredient(req, res);
+
+      expect(Category.findOne).toHaveBeenCalledWith({ name: 'Flours' });
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Category 'Flours' not found." });
+    });
+
+    it('should return 404 when the unit of measure is not found', async () => {
+      Category.findOne.mockResolvedValue({ _id: 'cat1' });
+      UnitOfMeasure.findOne.mockResolvedValue(null);
+
+      const req = { body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await createIngredient(req, res);
+
+      expect(UnitOfMeasure.findOne).toHaveBeenCalledWith({ unit: 'Grams' });
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Unit of measure 'Grams' not found." });
+    });
+
+    it('should create an ingredient and return it', async () => {
+      Category.findOne.mockResolvedValue({ _id: 'cat1' });
+      UnitOfMeasure.findOne.mockResolvedValue({ _id: 'uom1' });
+      Ingredient.create.mockResolvedValue(createdIngredient);
+
+      const req = { body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await createIngredient(req, res);
+
+      expect(Ingredient.create).toHaveBeenCalledWith({
+        name: 'Wheat Flour',
+        quantity: 500,
+        brand: 'Dona Benta',
+        category: 'cat1',
+        unitOfMeasure: 'uom1',
+        price: 8.5,
+      });
+      expect(res.status).toHaveBeenCalledWith(201);
+      expect(res.json).toHaveBeenCalledWith(createdIngredient);
+    });
+
+    it('should forward errors to the error handler', async () => {
+      const error = new Error('DB down');
+      Category.findOne.mockRejectedValue(error);
+
+      const req = { body: ingredientPayload };
+      const res = {};
+      const next = jest.fn();
+
+      await createIngredient(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('updateIngredient', () => {
+    it('should return 400 when category or unit of measure is missing', async () => {
+      const req = { params: { id: 'ing1' }, body: { name: 'Wheat Flour' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await updateIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Category and unit of measure are required' });
+    });
+
+    it('should return 404 when the unit of measure is not found', async () => {
+      UnitOfMeasure.findOne.mockResolvedValue(null);
+
+      const req = { params: { id: 'ing1' }, body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await updateIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Unit of measure 'Grams' not found." });
+    });
+
+    it('should return 404 when the category is not found', async () => {
+      UnitOfMeasure.findOne.mockResolvedValue({ _id: 'uom1' });
+      Category.findOne.mockResolvedValue(null);
+
+      const req = { params: { id: 'ing1' }, body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await updateIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: "Category 'Flours' not found." });
+    });
+
+    it('should update an ingredient and return it', async () => {
+      UnitOfMeasure.findOne.mockResolvedValue({ _id: 'uom1' });
+      Category.findOne.mockResolvedValue({ _id: 'cat1' });
+      Ingredient.findByIdAndUpdate.mockResolvedValue(createdIngredient);
+
+      const req = { params: { id: 'ing1' }, body: ingredientPayload };
+      const res = { json: jest.fn() };
+
+      await updateIngredient(req, res);
+
+      expect(Ingredient.findByIdAndUpdate).toHaveBeenCalledWith(
+        'ing1',
+        {
+          name: 'Wheat Flour',
+          quantity: 500,
+          brand: 'Dona Benta',
+          category: 'cat1',
+          unitOfMeasure: 'uom1',
+          price: 8.5,
+        },
+        { new: true }
+      );
+      expect(res.json).toHaveBeenCalledWith(createdIngredient);
+    });
+
+    it('should return 404 when the ingredient does not exist', async () => {
+      UnitOfMeasure.findOne.mockResolvedValue({ _id: 'uom1' });
+      Category.findOne.mockResolvedValue({ _id: 'cat1' });
+      Ingredient.findByIdAndUpdate.mockResolvedValue(null);
+
+      const req = { params: { id: 'missing' }, body: ingredientPayload };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await updateIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Ingredient not found' });
+    });
+
+    it('should forward errors to the error handler', async () => {
+      const error = new Error('DB down');
+      UnitOfMeasure.findOne.mockRejectedValue(error);
+
+      const req = { params: { id: 'ing1' }, body: ingredientPayload };
+      const res = {};
+      const next = jest.fn();
+
+      await updateIngredient(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(error);
+    });
+  });
+
+  describe('deleteOneIngredient', () => {
+    it('should delete an ingredient and its recipe references', async () => {
+      Ingredient.findByIdAndDelete.mockResolvedValue({ _id: 'ing1' });
+      IngredientRecipe.deleteMany.mockResolvedValue({});
+
+      const req = { params: { id: 'ing1' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        send: jest.fn(),
+      };
+
+      await deleteOneIngredient(req, res);
+
+      expect(Ingredient.findByIdAndDelete).toHaveBeenCalledWith('ing1');
+      expect(IngredientRecipe.deleteMany).toHaveBeenCalledWith({ ingredient: 'ing1' });
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.send).toHaveBeenCalledWith({ message: 'Ingredient deleted successfully' });
+    });
+
+    it('should return 404 when the ingredient does not exist', async () => {
+      Ingredient.findByIdAndDelete.mockResolvedValue(null);
+
+      const req = { params: { id: 'missing' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await deleteOneIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Ingredient not found' });
+    });
+  });
+
+  describe('getOneIngredient', () => {
+    it('should return a single ingredient', async () => {
+      Ingredient.findById.mockReturnValue(chain('category', createdIngredient));
+
+      const req = { params: { id: 'ing1' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await getOneIngredient(req, res);
+
+      expect(Ingredient.findById).toHaveBeenCalledWith('ing1');
+      expect(res.status).toHaveBeenCalledWith(200);
+      expect(res.json).toHaveBeenCalledWith(createdIngredient);
+    });
+
+    it('should return 404 when the ingredient does not exist', async () => {
+      Ingredient.findById.mockReturnValue(chain('category', null));
+
+      const req = { params: { id: 'missing' } };
+      const res = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      };
+
+      await getOneIngredient(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ message: 'Ingredient not found' });
+    });
+  });
+});
